@@ -7,17 +7,42 @@ import { auth } from "./firebase";
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 
+// Token cache to avoid async token retrieval in beforeSend
+let tokenCache: { token: string; expiresAt: number } | null = null;
+const TOKEN_CACHE_DURATION = 50 * 60 * 1000; // 50 minutes (tokens typically last 1 hour)
+
+async function getAuthToken(): Promise<string | null> {
+  const user = auth.currentUser;
+  if (!user) return null;
+  
+  // Return cached token if still valid
+  if (tokenCache && tokenCache.expiresAt > Date.now()) {
+    return tokenCache.token;
+  }
+  
+  try {
+    const token = await user.getIdToken();
+    // Cache the token with expiration
+    tokenCache = {
+      token,
+      expiresAt: Date.now() + TOKEN_CACHE_DURATION,
+    };
+    return token;
+  } catch (error) {
+    console.error("Failed to get auth token:", error);
+    return null;
+  }
+}
+
 // Configure the image loader to include authentication headers
 cornerstoneWADOImageLoader.configure({
-  beforeSend: async (xhr: XMLHttpRequest, imageId: string) => {
-    // Add authentication header if user is logged in
-    const user = auth.currentUser;
-    if (user) {
+  beforeSend: (xhr: XMLHttpRequest, imageId: string) => {
+    // Use cached token synchronously - token should be pre-fetched in loadImage
+    if (tokenCache && tokenCache.expiresAt > Date.now()) {
       try {
-        const token = await user.getIdToken();
-        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+        xhr.setRequestHeader("Authorization", `Bearer ${tokenCache.token}`);
       } catch (error) {
-        console.error("Failed to get auth token for WADO request:", error);
+        console.error("Failed to set auth header for WADO request:", error);
       }
     }
   },
@@ -103,6 +128,10 @@ export async function loadImage(
   element: HTMLDivElement,
   imageId: string
 ): Promise<cornerstone.Image> {
+  // Pre-fetch auth token before making the request
+  // This ensures the token is available synchronously in beforeSend
+  await getAuthToken();
+  
   // Ensure Cornerstone is initialized
   initializeCornerstone();
 
