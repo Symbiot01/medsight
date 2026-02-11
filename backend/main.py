@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 from starlette.responses import Response
 
 import config
-from api import router
+from .api import router
 
 # Basic logging setup (stdout)
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
