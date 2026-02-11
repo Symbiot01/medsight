@@ -1,8 +1,30 @@
-# Backend - ignore everything
-backend/
+# Backend - ignore most files but allow Docker and config files
+backend/*
+!backend/Dockerfile
+!backend/.dockerignore
+!backend/main.py
+!backend/config.py
+!backend/requirements.txt
+!backend/**/*.py
+!backend/**/__init__.py
 
-# Frontend - ignore everything
-frontend/
+# Frontend - ignore most files but allow Docker and config files
+frontend/*
+!frontend/Dockerfile
+!frontend/.dockerignore
+!frontend/package.json
+!frontend/package-lock.json
+!frontend/vite.config.ts
+!frontend/tsconfig*.json
+!frontend/tailwind.config.ts
+!frontend/postcss.config.js
+!frontend/eslint.config.js
+!frontend/vitest.config.ts
+!frontend/components.json
+!frontend/index.html
+!frontend/README.md
+!frontend/src/**/*
+!frontend/public/**/*
 
 # OS files
 .DS_Store
