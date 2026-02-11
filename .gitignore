@@ -12,6 +12,7 @@ backend/*
 frontend/*
 !frontend/Dockerfile
 !frontend/.dockerignore
+!frontend/.env.example
 !frontend/package.json
 !frontend/package-lock.json
 !frontend/vite.config.ts
@@ -23,7 +24,9 @@ frontend/*
 !frontend/components.json
 !frontend/index.html
 !frontend/README.md
+!frontend/src/
 !frontend/src/**/*
+!frontend/public/
 !frontend/public/**/*
 
 # OS files
